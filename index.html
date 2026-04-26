@@ -44,7 +44,7 @@
     
             useEffect(() => {
                 if (view === 'preview' && previewRef.current) {
-                    // 1. Render Math
+                    // 1. Render Math first
                     renderMathInElement(previewRef.current, {
                         delimiters: [
                             {left: '$$', right: '$$', display: true},
@@ -53,15 +53,24 @@
                         throwOnError: false
                     });
             
-                    // 2. Render Mermaid Diagrams
-                    // We look for <code> blocks with the class "language-mermaid"
-                    const mermaidDivs = previewRef.current.querySelectorAll('.language-mermaid');
-                    if (mermaidDivs.length > 0) {
-                        mermaid.initialize({ startOnLoad: false, theme: 'default' });
-                        mermaid.run({
-                            nodes: mermaidDivs
-                        });
-                    }
+                    // 2. Render Mermaid with a slight delay to ensure DOM is painted
+                    setTimeout(async () => {
+                        const mermaidDivs = previewRef.current.querySelectorAll('.language-mermaid');
+                        if (mermaidDivs.length > 0) {
+                            // Reset mermaid to avoid ID conflicts
+                            mermaid.initialize({ 
+                                startOnLoad: false, 
+                                theme: 'neutral',
+                                securityLevel: 'loose',
+                                flowchart: { useMaxWidth: true, htmlLabels: true }
+                            });
+                            
+                            // Clear out previous rendering artifacts and run
+                            await mermaid.run({
+                                nodes: mermaidDivs
+                            });
+                        }
+                    }, 50); 
                 }
             }, [view, markdown]);
     
