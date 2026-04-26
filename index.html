@@ -34,70 +34,84 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
-
+    
         function App() {
-            const [markdown, setMarkdown] = useState("# Optical Engineering Note\n\nReflection at normal incidence:\n\n$$R = \\left| \\frac{n_1 - n_2}{n_1 + n_2} \\right|^2$$");
+            const [markdown, setMarkdown] = useState("# Optical Engineering\n\nReflection coefficient:\n\n$$R = \\left| \\frac{n_1 - n_2}{n_1 + n_2} \\right|^2$$");
             const [view, setView] = useState('edit');
             const previewRef = useRef(null);
-
-            // This effect handles the math rendering whenever the preview is shown
+    
             useEffect(() => {
                 if (view === 'preview' && previewRef.current) {
+                    // Trigger KaTeX to scan the HTML for math delimiters
                     renderMathInElement(previewRef.current, {
                         delimiters: [
                             {left: '$$', right: '$$', display: true},
-                            {left: '$', right: '$', display: false}
+                            {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false},
+                            {left: '\\[', right: '\\]', display: true}
                         ],
                         throwOnError: false
                     });
                 }
             }, [view, markdown]);
-
+    
             const downloadFile = () => {
                 const blob = new Blob([markdown], { type: 'text/markdown' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = "note.md";
+                a.download = "optical_note.md";
                 a.click();
             };
-
+    
             return (
-                <div className="flex flex-col h-screen max-h-screen overflow-hidden">
-                    <header className="pt-12 pb-4 px-6 bg-white border-b flex justify-between items-center">
-                        <h1 className="text-xl font-bold tracking-tight">dotmd</h1>
-                        <button onClick={downloadFile} className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">Export</button>
+                <div className="flex flex-col h-screen max-h-screen bg-white">
+                    {/* Header */}
+                    <header className="pt-12 pb-4 px-6 border-b flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                        <h1 className="text-xl font-bold tracking-tight text-blue-600">dotmd</h1>
+                        <button onClick={downloadFile} className="bg-blue-600 active:bg-blue-700 text-white px-5 py-1.5 rounded-full text-sm font-semibold shadow-sm transition-all">
+                            Export
+                        </button>
                     </header>
-
+    
+                    {/* Editor / Preview Area */}
                     <main className="flex-1 overflow-hidden relative">
                         {view === 'edit' ? (
                             <textarea 
-                                className="w-full h-full p-6 text-lg outline-none resize-none no-scrollbar font-mono text-gray-700"
+                                className="w-full h-full p-6 text-[17px] leading-relaxed outline-none resize-none font-mono text-gray-800 bg-gray-50"
                                 value={markdown}
                                 onChange={(e) => setMarkdown(e.target.value)}
-                                placeholder="Enter Markdown..."
+                                placeholder="Type formula here, e.g., $E=mc^2$"
+                                spellCheck="false"
                             />
                         ) : (
                             <div 
                                 ref={previewRef}
-                                className="preview-area w-full h-full p-6 overflow-y-auto no-scrollbar"
+                                className="preview-area w-full h-full p-6 overflow-y-auto"
                                 dangerouslySetInnerHTML={{ __html: marked.parse(markdown) }}
                             />
                         )}
                     </main>
-
-                    <nav className="pb-8 pt-2 bg-gray-50 border-t flex justify-around items-center">
-                        <button onClick={() => setView('edit')} className={`px-8 py-2 rounded-lg transition-colors ${view === 'edit' ? 'bg-white shadow-sm text-blue-600 font-bold' : 'text-gray-400'}`}>
-                            Editor
+    
+                    {/* iOS Tab Bar Navigation */}
+                    <nav className="pb-10 pt-3 bg-white border-t flex justify-around items-center shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+                        <button 
+                            onClick={() => setView('edit')} 
+                            className={`flex flex-col items-center px-10 py-1 rounded-xl transition-all ${view === 'edit' ? 'text-blue-600 bg-blue-50' : 'text-gray-400'}`}
+                        >
+                            <span className="text-[10px] uppercase tracking-widest font-bold">Editor</span>
                         </button>
-                        <button onClick={() => setView('preview')} className={`px-8 py-2 rounded-lg transition-colors ${view === 'preview' ? 'bg-white shadow-sm text-blue-600 font-bold' : 'text-gray-400'}`}>
-                            Preview
+                        <button 
+                            onClick={() => setView('preview')} 
+                            className={`flex flex-col items-center px-10 py-1 rounded-xl transition-all ${view === 'preview' ? 'text-blue-600 bg-blue-50' : 'text-gray-400'}`}
+                        >
+                            <span className="text-[10px] uppercase tracking-widest font-bold">Preview</span>
                         </button>
                     </nav>
                 </div>
             );
         }
-
+    
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
