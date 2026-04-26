@@ -61,22 +61,18 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Responsive Split View Tweaks */
-        .work-area-split {
-            display: flex;
-            flex-direction: row !important; /* Force side-by-side even on mobile in split mode */
-        }
-
+        /* Fixed Split View for Mobile */
         @media (max-width: 768px) {
-            .work-area-split > section {
-                min-width: 85vw; /* Allow horizontal scrolling between panes on mobile split */
-            }
             .work-area-split {
-                overflow-x: auto;
+                flex-direction: row !important;
+                overflow-x: auto !important;
                 scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
             }
             .work-area-split > section {
+                min-width: 90vw !important;
                 scroll-snap-align: start;
+                flex-shrink: 0;
             }
         }
 
@@ -238,6 +234,7 @@ flowchart LR
 
             return (
                 <div className="flex flex-col h-screen max-h-screen bg-slate-100">
+                    {/* Header */}
                     <header className="pt-10 pb-3 px-6 bg-white border-b flex justify-between items-center z-30 shadow-sm">
                         <div className="flex items-center gap-3">
                             <h1 className="text-xl font-black text-blue-600 italic tracking-tighter">dotmd</h1>
@@ -254,9 +251,9 @@ flowchart LR
                             </div>
                             
                             <div className="relative">
-                                <button onClick={() => setIsExporting(!isExporting)} className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-bold shadow-md">Export</button>
+                                <button onClick={() => setIsExporting(!isExporting)} className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-bold shadow-md active:scale-95 transition-transform">Export</button>
                                 {isExporting && (
-                                    <div className="absolute right-0 mt-3 w-40 bg-white border rounded-xl shadow-2xl z-50 overflow-hidden">
+                                    <div className="absolute right-0 mt-3 w-40 bg-white border rounded-xl shadow-2xl z-50 overflow-hidden ring-1 ring-black/5">
                                         <button onClick={() => doExport('md')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 border-b">Markdown</button>
                                         <button onClick={() => doExport('html')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 border-b">HTML</button>
                                         <button onClick={() => doExport('pdf')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 text-blue-600 font-bold">PDF (Print)</button>
@@ -266,17 +263,19 @@ flowchart LR
                         </div>
                     </header>
 
-                    <main className={`flex-1 flex overflow-hidden p-2 gap-2 ${layout === 'split' ? 'work-area-split' : 'flex-col md:flex-row'}`}>
+                    {/* Work Area */}
+                    <main className={`flex-1 flex p-2 gap-2 ${layout === 'split' ? 'work-area-split' : 'flex-col md:flex-row overflow-hidden'}`}>
+                        {/* Editor Pane */}
                         <section className={`pane-transition bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${layout === 'editor' ? 'flex-1' : layout === 'preview' ? 'hidden' : 'flex-1'}`}>
-                            <div className="px-4 py-1.5 border-b flex justify-between items-center bg-slate-50/50">
-                                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Editor</span>
-                                <button onClick={() => setLayout(layout === 'editor' ? 'split' : 'editor')} className="text-slate-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                            <div className="px-4 py-2 border-b flex justify-between items-center bg-slate-50/50">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Editor</span>
+                                <button onClick={() => setLayout(layout === 'editor' ? 'split' : 'editor')} className="text-slate-400 hover:text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
                                 </button>
                             </div>
                             <textarea 
                                 ref={textareaRef}
-                                className="flex-1 p-6 text-[16px] leading-relaxed outline-none resize-none font-mono text-slate-700 no-scrollbar"
+                                className="flex-1 p-6 text-[17px] leading-relaxed outline-none resize-none font-mono text-slate-700 no-scrollbar"
                                 value={markdown}
                                 onChange={(e) => setMarkdown(e.target.value)}
                                 spellCheck="false"
@@ -288,11 +287,12 @@ flowchart LR
                             </div>
                         </section>
 
+                        {/* Preview Pane */}
                         <section className={`pane-transition bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${layout === 'preview' ? 'flex-1' : layout === 'editor' ? 'hidden' : 'flex-1'}`}>
-                            <div className="px-4 py-1.5 border-b flex justify-between items-center bg-slate-50/50">
-                                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Preview</span>
-                                <button onClick={() => setLayout(layout === 'preview' ? 'split' : 'preview')} className="text-slate-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                            <div className="px-4 py-2 border-b flex justify-between items-center bg-slate-50/50">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Preview</span>
+                                <button onClick={() => setLayout(layout === 'preview' ? 'split' : 'preview')} className="text-slate-400 hover:text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
                                 </button>
                             </div>
                             <div 
@@ -303,17 +303,22 @@ flowchart LR
                         </section>
                     </main>
 
+                    {/* Help Drawer */}
                     {showHelp && (
                         <div className="fixed inset-0 z-50 flex justify-end">
                             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowHelp(false)}></div>
                             <div className="relative w-full max-w-xl bg-white h-full shadow-2xl flex flex-col pane-transition">
                                 <div className="flex justify-between items-center p-6 border-b">
                                     <h2 className="text-2xl font-bold">Documentation</h2>
-                                    <button onClick={() => setShowHelp(false)} className="p-2 bg-slate-100 rounded-full">
+                                    <button onClick={() => setShowHelp(false)} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                     </button>
                                 </div>
-                                <div ref={helpRef} className="preview-area flex-1 p-8 overflow-y-auto no-scrollbar" dangerouslySetInnerHTML={{ __html: marked.parse(helpMarkdown) }} />
+                                <div 
+                                    ref={helpRef}
+                                    className="preview-area flex-1 p-8 overflow-y-auto no-scrollbar" 
+                                    dangerouslySetInnerHTML={{ __html: marked.parse(helpMarkdown) }} 
+                                />
                             </div>
                         </div>
                     )}
