@@ -19,6 +19,8 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -42,16 +44,24 @@
     
             useEffect(() => {
                 if (view === 'preview' && previewRef.current) {
-                    // Trigger KaTeX to scan the HTML for math delimiters
+                    // 1. Render Math
                     renderMathInElement(previewRef.current, {
                         delimiters: [
                             {left: '$$', right: '$$', display: true},
-                            {left: '$', right: '$', display: false},
-                            {left: '\\(', right: '\\)', display: false},
-                            {left: '\\[', right: '\\]', display: true}
+                            {left: '$', right: '$', display: false}
                         ],
                         throwOnError: false
                     });
+            
+                    // 2. Render Mermaid Diagrams
+                    // We look for <code> blocks with the class "language-mermaid"
+                    const mermaidDivs = previewRef.current.querySelectorAll('.language-mermaid');
+                    if (mermaidDivs.length > 0) {
+                        mermaid.initialize({ startOnLoad: false, theme: 'default' });
+                        mermaid.run({
+                            nodes: mermaidDivs
+                        });
+                    }
                 }
             }, [view, markdown]);
     
