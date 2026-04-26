@@ -61,17 +61,25 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Fixed Split View for Mobile */
-        @media (max-width: 768px) {
+        /* Desktop: Horizontal Split */
+        @media (min-width: 769px) {
             .work-area-split {
                 flex-direction: row !important;
-                overflow-x: auto !important;
-                scroll-snap-type: x mandatory;
-                -webkit-overflow-scrolling: touch;
             }
             .work-area-split > section {
-                min-width: 90vw !important;
-                scroll-snap-align: start;
+                min-height: auto !important;
+                flex: 1;
+            }
+        }
+
+        /* Mobile: Vertical Stack */
+        @media (max-width: 768px) {
+            .work-area-split {
+                flex-direction: column !important;
+                overflow-y: auto !important;
+            }
+            .work-area-split > section {
+                min-height: 45vh;
                 flex-shrink: 0;
             }
         }
@@ -85,7 +93,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-gray-900 overflow-hidden">
+<body class="bg-slate-50 text-gray-900 overflow-hidden text-[17px]">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -93,7 +101,7 @@
     
         function App() {
             const [markdown, setMarkdown] = useState(() => {
-                return localStorage.getItem('dotmd_v2') || "# Split View Editor\n\nEdit on the left, see math on the right.\n\n$$ \\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\epsilon_0} $$";
+                return localStorage.getItem('dotmd_v2') || "# Welcome to dotmd\n\nResponsive Split View enabled:\n- Side-by-side on Web\n- Stacked on Mobile\n\n$$ \\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\epsilon_0} $$";
             });
             
             const [layout, setLayout] = useState('split');
@@ -130,6 +138,18 @@
                         });
                         await mermaid.run({ nodes: mermaidDivs });
                     }, 50);
+                }
+            };
+
+            // Enhanced Scroll Sync Logic
+            const handleScroll = (e) => {
+                if (layout !== 'split') return;
+                const { scrollTop, scrollHeight, clientHeight } = e.target;
+                const scrollRatio = scrollTop / (scrollHeight - clientHeight);
+                
+                if (previewRef.current) {
+                    const preview = previewRef.current;
+                    preview.scrollTop = scrollRatio * (preview.scrollHeight - preview.clientHeight);
                 }
             };
 
@@ -228,7 +248,8 @@ flowchart LR
 \`\`\`
 
 ## 4. Tips
-- **Split View**: On mobile, swipe horizontally between Editor and Preview.
+- **Responsive Split View**: Web uses side-by-side; Mobile uses vertical stack.
+- **Scroll Sync**: Scrolling in the editor moves the preview proportionally.
 - **Persistence**: Content is saved locally in your browser automatically.
 `;
 
@@ -264,7 +285,7 @@ flowchart LR
                     </header>
 
                     {/* Work Area */}
-                    <main className={`flex-1 flex p-2 gap-2 ${layout === 'split' ? 'work-area-split' : 'flex-col md:flex-row overflow-hidden'}`}>
+                    <main className={`flex-1 flex overflow-hidden p-2 gap-2 ${layout === 'split' ? 'work-area-split' : 'flex-col md:flex-row overflow-hidden'}`}>
                         {/* Editor Pane */}
                         <section className={`pane-transition bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${layout === 'editor' ? 'flex-1' : layout === 'preview' ? 'hidden' : 'flex-1'}`}>
                             <div className="px-4 py-2 border-b flex justify-between items-center bg-slate-50/50">
@@ -278,6 +299,7 @@ flowchart LR
                                 className="flex-1 p-6 text-[17px] leading-relaxed outline-none resize-none font-mono text-slate-700 no-scrollbar"
                                 value={markdown}
                                 onChange={(e) => setMarkdown(e.target.value)}
+                                onScroll={handleScroll}
                                 spellCheck="false"
                             />
                             <div className="p-2 border-t flex gap-2 overflow-x-auto no-scrollbar bg-white">
@@ -297,7 +319,7 @@ flowchart LR
                             </div>
                             <div 
                                 ref={previewRef}
-                                className="preview-area flex-1 p-6 overflow-y-auto no-scrollbar"
+                                className="preview-area flex-1 p-6 overflow-y-auto no-scrollbar scroll-smooth"
                                 dangerouslySetInnerHTML={{ __html: marked.parse(markdown) }}
                             />
                         </section>
