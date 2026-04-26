@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>dotmd</title>
     
@@ -58,6 +61,25 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Responsive Split View Tweaks */
+        .work-area-split {
+            display: flex;
+            flex-direction: row !important; /* Force side-by-side even on mobile in split mode */
+        }
+
+        @media (max-width: 768px) {
+            .work-area-split > section {
+                min-width: 85vw; /* Allow horizontal scrolling between panes on mobile split */
+            }
+            .work-area-split {
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+            }
+            .work-area-split > section {
+                scroll-snap-align: start;
+            }
+        }
+
         /* Hide UI elements during Print */
         @media print {
             header, .controls, .toolbelt, .export-modal { display: none !important; }
@@ -90,11 +112,9 @@
                 localStorage.setItem('dotmd_v2', markdown);
             }, [markdown]);
 
-            // Rendering Logic for Math & Mermaid
             const renderFeatures = (container) => {
                 if (!container) return;
                 
-                // Render KaTeX
                 renderMathInElement(container, {
                     delimiters: [
                         {left: '$$', right: '$$', display: true},
@@ -103,7 +123,6 @@
                     throwOnError: false
                 });
         
-                // Render Mermaid
                 const mermaidDivs = container.querySelectorAll('.language-mermaid');
                 if (mermaidDivs.length > 0) {
                     setTimeout(async () => {
@@ -180,8 +199,6 @@
             const helpMarkdown = `
 # dotmd Documentation
 
-Welcome to your advanced engineering notebook. This tool combines standard Markdown with powerful rendering engines for mathematics and diagrams.
-
 ## 1. Markdown Syntax
 ### Text Styling
 - **Bold**: \`**text**\`
@@ -191,67 +208,36 @@ Welcome to your advanced engineering notebook. This tool combines standard Markd
 
 ### Lists & Tables
 - **Unordered**: Use \`-\` or \`*\`
-- **Ordered**: Use \`1.\`, \`2.\`
 - **Tables**:
 \`\`\`markdown
-| Parameter | Value | Unit |
-| :--- | :---: | ---: |
-| Index (n) | 1.52 | - |
-| Wave (λ) | 633 | nm |
+| Parameter | Value |
+| :--- | :---: |
+| Index (n) | 1.52 |
 \`\`\`
 
----
-
 ## 2. Mathematics (LaTeX)
-Powered by KaTeX. Use \`$\` for inline math and \`$$\` for display blocks.
+Powered by KaTeX. Use \`$\` for inline and \`$$\` for blocks.
 
-### Common Engineering Notation
-- **Fractions**: \`\\frac{numerator}{denominator}\` -> $\\frac{a}{b}$
-- **Greek Letters**: \`\\alpha, \\beta, \\gamma, \\theta, \\lambda, \\Omega\` -> $\\alpha, \\beta, \\gamma, \\theta, \\lambda, \\Omega$
-- **Superscripts/Subscripts**: \`n_1^2, e^{i\\phi}\` -> $n_1^2, e^{i\\phi}$
-- **Calculus**: \`\\int_0^\\infty, \\frac{d\\phi}{dt}, \\nabla \\times \\mathbf{B}\` -> $\\int_0^\\infty, \\frac{d\\phi}{dt}, \\nabla \\times \\mathbf{B}$
-- **Matrices**:
-  \`\`\`latex
-  \\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}
-  \`\`\`
-  Result: $\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}$
-
----
+- **Fractions**: \`\\frac{a}{b}\` -> $\\frac{a}{b}$
+- **Greek**: \`\\alpha, \\beta, \\theta, \\lambda\` -> $\\alpha, \\beta, \\theta, \\lambda$
+- **Sup/Sub**: \`n_1^2, e^{i\\phi}\` -> $n_1^2, e^{i\\phi}$
 
 ## 3. Diagrams (Mermaid)
-Wrap your diagram code in \` \` \`mermaid \` \` \` blocks.
+Wrap in \` \` \`mermaid \` \` \` blocks.
 
-### Flowchart Basics
 \`\`\`mermaid
 flowchart LR
     A[Start] --> B{Condition}
     B -- Yes --> C[Result]
-    B -- No --> D[End]
 \`\`\`
 
-### Advanced Flowchart Styles
-- **Shapes**: \`[Square]\`, \`(Rounded)\`, \`([Stadium])\`, \`{Diamond}\`, \`((Circle))\`
-- **Arrows**: \`-->\` (line), \`-.->\` (dashed), \`==>\` (thick)
-- **Subgraphs**:
-\`\`\`mermaid
-flowchart TD
-    subgraph Optic[Optical System]
-    L[Lens] --> S[Sensor]
-    end
-    Source --> Optic
-\`\`\`
-
----
-
-## 4. Operational Tips
-- **Split View**: Edit and View simultaneously. Use the expand icons in the pane headers to maximize a specific side.
-- **Exporting**: Use the Export button to download as Markdown or HTML. Use **Print to PDF** to use the system's native PDF generator.
+## 4. Tips
+- **Split View**: On mobile, swipe horizontally between Editor and Preview.
 - **Persistence**: Content is saved locally in your browser automatically.
 `;
 
             return (
                 <div className="flex flex-col h-screen max-h-screen bg-slate-100">
-                    {/* Header */}
                     <header className="pt-10 pb-3 px-6 bg-white border-b flex justify-between items-center z-30 shadow-sm">
                         <div className="flex items-center gap-3">
                             <h1 className="text-xl font-black text-blue-600 italic tracking-tighter">dotmd</h1>
@@ -262,15 +248,15 @@ flowchart TD
                         
                         <div className="flex items-center gap-2">
                             <div className="bg-slate-100 p-1 rounded-lg flex items-center">
-                                <button onClick={() => setLayout('editor')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${layout === 'editor' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Edit</button>
-                                <button onClick={() => setLayout('split')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${layout === 'split' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Split</button>
-                                <button onClick={() => setLayout('preview')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${layout === 'preview' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>View</button>
+                                <button onClick={() => setLayout('editor')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${layout === 'editor' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Edit</button>
+                                <button onClick={() => setLayout('split')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${layout === 'split' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Split</button>
+                                <button onClick={() => setLayout('preview')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${layout === 'preview' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>View</button>
                             </div>
                             
                             <div className="relative">
-                                <button onClick={() => setIsExporting(!isExporting)} className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-md active:scale-95 transition-transform">Export</button>
+                                <button onClick={() => setIsExporting(!isExporting)} className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-bold shadow-md">Export</button>
                                 {isExporting && (
-                                    <div className="absolute right-0 mt-3 w-40 bg-white border rounded-xl shadow-2xl z-50 overflow-hidden ring-1 ring-black/5">
+                                    <div className="absolute right-0 mt-3 w-40 bg-white border rounded-xl shadow-2xl z-50 overflow-hidden">
                                         <button onClick={() => doExport('md')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 border-b">Markdown</button>
                                         <button onClick={() => doExport('html')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 border-b">HTML</button>
                                         <button onClick={() => doExport('pdf')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 text-blue-600 font-bold">PDF (Print)</button>
@@ -280,18 +266,17 @@ flowchart TD
                         </div>
                     </header>
 
-                    {/* Work Area */}
-                    <main className="flex-1 flex flex-col md:flex-row overflow-hidden p-2 gap-2">
+                    <main className={`flex-1 flex overflow-hidden p-2 gap-2 ${layout === 'split' ? 'work-area-split' : 'flex-col md:flex-row'}`}>
                         <section className={`pane-transition bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${layout === 'editor' ? 'flex-1' : layout === 'preview' ? 'hidden' : 'flex-1'}`}>
-                            <div className="px-4 py-2 border-b flex justify-between items-center bg-slate-50/50">
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Editor</span>
-                                <button onClick={() => setLayout(layout === 'editor' ? 'split' : 'editor')} className="text-slate-400 hover:text-blue-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                            <div className="px-4 py-1.5 border-b flex justify-between items-center bg-slate-50/50">
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Editor</span>
+                                <button onClick={() => setLayout(layout === 'editor' ? 'split' : 'editor')} className="text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
                                 </button>
                             </div>
                             <textarea 
                                 ref={textareaRef}
-                                className="flex-1 p-6 text-[17px] leading-relaxed outline-none resize-none font-mono text-slate-700 no-scrollbar"
+                                className="flex-1 p-6 text-[16px] leading-relaxed outline-none resize-none font-mono text-slate-700 no-scrollbar"
                                 value={markdown}
                                 onChange={(e) => setMarkdown(e.target.value)}
                                 spellCheck="false"
@@ -304,10 +289,10 @@ flowchart TD
                         </section>
 
                         <section className={`pane-transition bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${layout === 'preview' ? 'flex-1' : layout === 'editor' ? 'hidden' : 'flex-1'}`}>
-                            <div className="px-4 py-2 border-b flex justify-between items-center bg-slate-50/50">
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Preview</span>
-                                <button onClick={() => setLayout(layout === 'preview' ? 'split' : 'preview')} className="text-slate-400 hover:text-blue-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                            <div className="px-4 py-1.5 border-b flex justify-between items-center bg-slate-50/50">
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Preview</span>
+                                <button onClick={() => setLayout(layout === 'preview' ? 'split' : 'preview')} className="text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
                                 </button>
                             </div>
                             <div 
@@ -318,22 +303,17 @@ flowchart TD
                         </section>
                     </main>
 
-                    {/* Help Drawer */}
                     {showHelp && (
                         <div className="fixed inset-0 z-50 flex justify-end">
                             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowHelp(false)}></div>
                             <div className="relative w-full max-w-xl bg-white h-full shadow-2xl flex flex-col pane-transition">
                                 <div className="flex justify-between items-center p-6 border-b">
                                     <h2 className="text-2xl font-bold">Documentation</h2>
-                                    <button onClick={() => setShowHelp(false)} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200">
+                                    <button onClick={() => setShowHelp(false)} className="p-2 bg-slate-100 rounded-full">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                     </button>
                                 </div>
-                                <div 
-                                    ref={helpRef}
-                                    className="preview-area flex-1 p-8 overflow-y-auto no-scrollbar" 
-                                    dangerouslySetInnerHTML={{ __html: marked.parse(helpMarkdown) }} 
-                                />
+                                <div ref={helpRef} className="preview-area flex-1 p-8 overflow-y-auto no-scrollbar" dangerouslySetInnerHTML={{ __html: marked.parse(helpMarkdown) }} />
                             </div>
                         </div>
                     )}
