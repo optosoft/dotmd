@@ -108,9 +108,9 @@
         marked.use({
             renderer: {
                 heading(text, level) {
-                    const cleanText = text.replace(/<[^>]*>?/gm, '');
+                    const cleanText = (text || '').replace(/<[^>]*>?/gm, '');
                     const id = cleanText.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '');
-                    return `<h${level} id="${id}">${text}</h${level}>\n`;
+                    return `<h${level} id="${id}">${text || ''}</h${level}>\n`;
                 }
             }
         });
