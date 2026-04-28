@@ -120,6 +120,14 @@
                 return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             });
             
+            const { wordCount, lineCount } = React.useMemo(() => {
+                const trimmed = markdown.trim();
+                return {
+                    wordCount: trimmed ? trimmed.split(/\s+/).length : 0,
+                    lineCount: markdown.split('\n').length
+                };
+            }, [markdown]);
+
             const previewRef = useRef(null);
             const helpRef = useRef(null);
             const textareaRef = useRef(null);
@@ -345,10 +353,16 @@ flowchart LR
                                 onScroll={handleScroll}
                                 spellCheck="false"
                             />
-                            <div className="p-2 border-t dark:border-slate-700 flex gap-2 overflow-x-auto no-scrollbar bg-white dark:bg-slate-800">
-                                {tools.map((t, i) => (
-                                    <button key={i} onClick={() => insertSnippet(t.cmd)} className="tool-btn active:bg-slate-100 dark:active:bg-slate-700">{t.label}</button>
-                                ))}
+                            <div className="p-2 border-t dark:border-slate-700 flex justify-between items-center gap-2 bg-white dark:bg-slate-800">
+                                <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                                    {tools.map((t, i) => (
+                                        <button key={i} onClick={() => insertSnippet(t.cmd)} className="tool-btn active:bg-slate-100 dark:active:bg-slate-700">{t.label}</button>
+                                    ))}
+                                </div>
+                                <div className="flex-shrink-0 flex items-center gap-4 pr-2 text-xs text-slate-400 dark:text-slate-500 font-mono">
+                                    <span>{lineCount} Lines</span>
+                                    <span>{wordCount} Words</span>
+                                </div>
                             </div>
                         </section>
 
