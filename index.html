@@ -260,6 +260,7 @@
                 if (saved) return saved === 'dark';
                 return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             });
+            const [emojiPicker, setEmojiPicker] = useState({ show: false, search: '', pos: 0, top: 0, left: 0, selectedIndex: 0 });
 
             // This effect runs once on mount to initialize files
             useEffect(() => {
