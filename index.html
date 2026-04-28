@@ -72,18 +72,6 @@
             }
         }
 
-        /* Mobile: Vertical Stack */
-        @media (max-width: 768px) {
-            .work-area-split {
-                flex-direction: column !important;
-                overflow-y: auto !important;
-            }
-            .work-area-split > section {
-                min-height: 45vh;
-                flex-shrink: 0;
-            }
-        }
-
         /* Hide UI elements during Print */
         @media print {
             header, .controls, .toolbelt, .export-modal { display: none !important; }
@@ -101,7 +89,7 @@
     
         function App() {
             const [markdown, setMarkdown] = useState(() => {
-                return localStorage.getItem('dotmd_v2') || "# Welcome to dotmd\n\nResponsive Split View enabled:\n- Side-by-side on Web\n- Stacked on Mobile\n\n$$ \\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\epsilon_0} $$";
+                return localStorage.getItem('dotmd_v2') || "# Welcome to dotmd\n\nEdit on the left, see math on the right.\n\n$$ \\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\epsilon_0} $$";
             });
             
             const [layout, setLayout] = useState('split');
@@ -111,6 +99,19 @@
             const previewRef = useRef(null);
             const helpRef = useRef(null);
             const textareaRef = useRef(null);
+
+            // Handle responsive layout fallback
+            useEffect(() => {
+                const handleResize = () => {
+                    if (window.innerWidth <= 768 && layout === 'split') {
+                        setLayout('editor');
+                    }
+                };
+                
+                handleResize(); // Initial check
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, [layout]);
 
             useEffect(() => {
                 localStorage.setItem('dotmd_v2', markdown);
@@ -141,15 +142,16 @@
                 }
             };
 
-            // Enhanced Scroll Sync Logic
+            // Scroll Sync Logic (Desktop only)
             const handleScroll = (e) => {
-                if (layout !== 'split') return;
-                const { scrollTop, scrollHeight, clientHeight } = e.target;
-                const scrollRatio = scrollTop / (scrollHeight - clientHeight);
-                
-                if (previewRef.current) {
-                    const preview = previewRef.current;
-                    preview.scrollTop = scrollRatio * (preview.scrollHeight - preview.clientHeight);
+                if (window.innerWidth > 768 && layout === 'split') {
+                    const { scrollTop, scrollHeight, clientHeight } = e.target;
+                    const scrollRatio = scrollTop / (scrollHeight - clientHeight);
+                    
+                    if (previewRef.current) {
+                        const preview = previewRef.current;
+                        preview.scrollTop = scrollRatio * (preview.scrollHeight - preview.clientHeight);
+                    }
                 }
             };
 
@@ -248,8 +250,8 @@ flowchart LR
 \`\`\`
 
 ## 4. Tips
-- **Responsive Split View**: Web uses side-by-side; Mobile uses vertical stack.
-- **Scroll Sync**: Scrolling in the editor moves the preview proportionally.
+- **Responsive View**: Mobile interface uses tabbed Editor/Preview. Desktop supports side-by-side Split View.
+- **Scroll Sync**: Scrolling in the editor moves the preview proportionally on Desktop Split View.
 - **Persistence**: Content is saved locally in your browser automatically.
 `;
 
@@ -267,7 +269,7 @@ flowchart LR
                         <div className="flex items-center gap-2">
                             <div className="bg-slate-100 p-1 rounded-lg flex items-center">
                                 <button onClick={() => setLayout('editor')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${layout === 'editor' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Edit</button>
-                                <button onClick={() => setLayout('split')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${layout === 'split' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Split</button>
+                                <button onClick={() => setLayout('split')} className={`hidden md:block px-3 py-1 rounded-md text-[10px] font-bold transition-all ${layout === 'split' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Split</button>
                                 <button onClick={() => setLayout('preview')} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${layout === 'preview' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>View</button>
                             </div>
                             
@@ -287,10 +289,10 @@ flowchart LR
                     {/* Work Area */}
                     <main className={`flex-1 flex overflow-hidden p-2 gap-2 ${layout === 'split' ? 'work-area-split' : 'flex-col md:flex-row overflow-hidden'}`}>
                         {/* Editor Pane */}
-                        <section className={`pane-transition bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${layout === 'editor' ? 'flex-1' : layout === 'preview' ? 'hidden' : 'flex-1'}`}>
+                        <section className={`pane-transition bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${layout === 'editor' || layout === 'split' ? 'flex-1' : 'hidden'}`}>
                             <div className="px-4 py-2 border-b flex justify-between items-center bg-slate-50/50">
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Editor</span>
-                                <button onClick={() => setLayout(layout === 'editor' ? 'split' : 'editor')} className="text-slate-400 hover:text-blue-600">
+                                <button onClick={() => setLayout(layout === 'editor' ? 'split' : 'editor')} className="hidden md:block text-slate-400 hover:text-blue-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
                                 </button>
                             </div>
@@ -310,10 +312,10 @@ flowchart LR
                         </section>
 
                         {/* Preview Pane */}
-                        <section className={`pane-transition bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${layout === 'preview' ? 'flex-1' : layout === 'editor' ? 'hidden' : 'flex-1'}`}>
+                        <section className={`pane-transition bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col ${layout === 'preview' || layout === 'split' ? 'flex-1' : 'hidden'}`}>
                             <div className="px-4 py-2 border-b flex justify-between items-center bg-slate-50/50">
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Preview</span>
-                                <button onClick={() => setLayout(layout === 'preview' ? 'split' : 'preview')} className="text-slate-400 hover:text-blue-600">
+                                <button onClick={() => setLayout(layout === 'preview' ? 'split' : 'preview')} className="hidden md:block text-slate-400 hover:text-blue-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
                                 </button>
                             </div>
