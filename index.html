@@ -107,10 +107,14 @@
         // Initialize marked renderer for heading IDs
         marked.use({
             renderer: {
-                heading(text, level) {
-                    const cleanText = (text || '').replace(/<[^>]*>?/gm, '');
+                heading(tokenOrText, level) {
+                    // Handle marked v13+ (token object) and older versions (text string)
+                    const text = typeof tokenOrText === 'string' ? tokenOrText : (tokenOrText?.text || '');
+                    const depth = typeof tokenOrText === 'string' ? level : (tokenOrText?.depth || 1);
+                    
+                    const cleanText = text.replace(/<[^>]*>?/gm, '');
                     const id = cleanText.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '');
-                    return `<h${level} id="${id}">${text || ''}</h${level}>\n`;
+                    return `<h${depth} id="${id}">${text}</h${depth}>\n`;
                 }
             }
         });
