@@ -90,6 +90,14 @@
         .dark .preview-area dt { color: #f8fafc; }
         .dark .preview-area dd { color: #94a3b8; }
         
+        /* Front-matter Styles */
+        .preview-area .front-matter { background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid #e2e8f0; font-size: 0.85rem; font-family: monospace; overflow-x: auto; }
+        .preview-area .front-matter table { margin: 0; width: auto; }
+        .preview-area .front-matter th, .preview-area .front-matter td { border: none; padding: 0.25rem 1rem 0.25rem 0; background: transparent; }
+        .preview-area .front-matter th { color: #64748b; text-align: right; font-weight: 600; }
+        .dark .preview-area .front-matter { background: #0f172a; border-color: #334155; }
+        .dark .preview-area .front-matter th { color: #94a3b8; }
+
         .preview-area pre .copy-btn { opacity: 0; }
         .preview-area pre:hover .copy-btn, .preview-area pre .copy-btn:focus { opacity: 1; }
 
@@ -170,8 +178,28 @@
         const processExtendedMarkdown = (md) => {
             if (!md) return '';
 
+            let tempMd = md;
+            let frontMatterHtml = '';
+            
+            // Extract YAML Front-matter for SSG compatibility
+            tempMd = tempMd.replace(/^---\n([\s\S]*?)\n---(?:\n|$)/, (match, yaml) => {
+                let tableRows = '';
+                yaml.split('\n').forEach(line => {
+                    const colonIdx = line.indexOf(':');
+                    if (colonIdx > -1) {
+                        const key = line.slice(0, colonIdx).trim();
+                        const val = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, '');
+                        tableRows += `<tr><th>${key}</th><td>${val}</td></tr>`;
+                    }
+                });
+                if (tableRows) {
+                    frontMatterHtml = `<div class="front-matter"><table>${tableRows}</table></div>\n\n`;
+                }
+                return ''; // Remove from raw markdown passing to marked.js
+            });
+
             // Process PlantUML before shielding other code blocks
-            let tempMd = md.replace(/```plantuml\n([\s\S]*?)```/g, (match, code) => {
+            tempMd = tempMd.replace(/```plantuml\n([\s\S]*?)```/g, (match, code) => {
                 if (typeof plantumlEncoder !== 'undefined') {
                     const encoded = plantumlEncoder.encode(code);
                     return `\n<div class="flex justify-center my-4"><img src="https://www.plantuml.com/plantuml/svg/${encoded}" alt="PlantUML Diagram" class="max-w-full rounded-none shadow-none m-0" /></div>\n`;
@@ -211,7 +239,7 @@
                 });
                 tempMd += '\n</ol>\n</section>';
             }
-            return tempMd;
+            return frontMatterHtml + tempMd;
         };
 
         // Helper for Autocomplete Placement
@@ -521,15 +549,19 @@
                 return () => window.removeEventListener('resize', handleResize);
             }, [layout, isMobile]);
 
-            // Focus Mode Escape listener
+            // Global Keyboard Shortcuts
             useEffect(() => {
-                const handleKeyDown = (e) => {
+                const handleGlobalKeyDown = (e) => {
                     if (e.key === 'Escape' && isFocusMode) {
                         setIsFocusMode(false);
                     }
+                    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+                        e.preventDefault();
+                        setLayout(prev => prev === 'preview' ? 'split' : 'preview');
+                    }
                 };
-                window.addEventListener('keydown', handleKeyDown);
-                return () => window.removeEventListener('keydown', handleKeyDown);
+                window.addEventListener('keydown', handleGlobalKeyDown);
+                return () => window.removeEventListener('keydown', handleGlobalKeyDown);
             }, [isFocusMode]);
 
         // Sync Highlight.js theme with Dark Mode
@@ -744,6 +776,7 @@
 
                 let blob, ext;
                 if (type === 'md') { blob = new Blob([markdown], { type: 'text/markdown' }); ext = ".md"; }
+                else if (type === 'txt') { blob = new Blob([markdown], { type: 'text/plain' }); ext = ".txt"; }
                 else { 
                     const html = marked.parse(processExtendedMarkdown(markdown));
                     const doc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;line-height:1.6;padding:2rem;max-width:800px;margin:auto;}</style></head><body>${html}</body></html>`;
@@ -769,15 +802,19 @@
             const helpMarkdown = `
 # dotmd Documentation
 
-## 1. Markdown Syntax
-### Text Styling
-- **Bold**: \`**text**\`
-- *Italic*: \`*text*\`
-- ~~Strikethrough~~: \`~~text~~\`
-- \`Inline Code\`: \` \`code\` \`
+Welcome to **dotmd**, your lightweight, fully-featured Markdown editor.
 
-### Lists & Tables
-- **Unordered**: Use \`-\` or \`*\`
+## 1. Workspace & Editor
+- **Multi-File Workspace**: Use the left sidebar to manage multiple documents. Everything is auto-saved locally.
+- **Layouts**: Toggle Edit, Split, and View modes from the top right. 
+- **Focus Mode**: Click the Focus icon (square with corners) to hide all sidebars for distraction-free writing. Press \`ESC\` to exit.
+- **Table of Contents**: Click the TOC icon to view a dynamically generated, clickable outline of your headings.
+- **Editor Tools**: The editor features real-time syntax highlighting, line/word counts, and Undo/Redo history (via toolbar or \`Ctrl+Z\`/\`Ctrl+Y\`).
+
+## 2. Basic Markdown Syntax
+- **Bold**: \`**text**\` | *Italic*: \`*text*\` | ~~Strikethrough~~: \`~~text~~\`
+- **Inline Code**: \` \\\`code\\\` \`
+- **Lists**: Use \`-\` or \`*\` for unordered, \`1.\` for ordered.
 - **Tables**:
 \`\`\`markdown
 | Parameter | Value |
@@ -785,38 +822,43 @@
 | Index (n) | 1.52 |
 \`\`\`
 
-## 2. Mathematics (LaTeX)
-Powered by KaTeX. Use \`$\` for inline and \`$$\` for blocks.
+## 3. Advanced Markdown
+### Task & Definition Lists
+- [x] Task lists are fully supported!
 
+Term
+: A lightweight definition list.
+
+### Footnotes & Emojis
+Add footnotes easily [^1]. Type \`:\` in the editor to trigger the **Emoji Autocomplete** dropdown and insert emojis like :rocket: and :sparkles:.
+
+## 4. Mathematics (LaTeX)
+Powered by KaTeX. Use \`$\` for inline and \`$$\` for blocks.
 - **Fractions**: \`\\frac{a}{b}\` -> $\\frac{a}{b}$
-- **Greek**: \`\\alpha, \\beta, \\theta, \\lambda\` -> $\\alpha, \\beta, \\theta, \\lambda$
 - **Sup/Sub**: \`n_1^2, e^{i\\phi}\` -> $n_1^2, e^{i\\phi}$
 
-## 3. Diagrams (Mermaid & PlantUML)
-Wrap in \` \` \`mermaid \` \` \` or \` \` \`plantuml \` \` \` blocks.
-
+## 5. Diagrams & Code
+Code blocks feature automatic syntax highlighting and a "Copy to Clipboard" button on hover. 
+Wrap code in \`\`\`mermaid\`\`\` or \`\`\`plantuml\`\`\` to render live diagrams:
 \`\`\`mermaid
 flowchart LR
     A[Start] --> B{Condition}
     B -- Yes --> C[Result]
 \`\`\`
 
-## 4. Tips
-- **Responsive View**: Mobile interface uses tabbed Editor/Preview. Desktop supports side-by-side Split View.
-- **Scroll Sync**: Scrolling in the editor moves the preview proportionally on Desktop Split View.
-- **Persistence**: Content is saved locally in your browser automatically.
+## 6. Exporting & SSG
+- **Formats**: Export to Markdown (\`.md\`), Plain Text (\`.txt\`), HTML (\`.html\`), or Print/PDF.
+- **Front-matter**: Add YAML front-matter to the very top of your document for Static Site Generator compatibility. It will automatically render as a clean metadata table.
+\`\`\`yaml
+---
+title: dotmd Documentation
+author: You
+---
+\`\`\`
 
-## 4. Advanced Elements
-### Task Lists
-- [x] Complete feature
-- [ ] New feature
-
-### Definition Lists
-Markdown
-: A lightweight markup language
-
-### Footnotes & Emoji
-Here is a footnote reference [^1] and an emoji :rocket:!
+## 7. Customization
+- **Dark Mode**: Toggle the Moon/Sun icon to switch themes.
+- **Custom CSS**: Click the Settings gear to inject your own CSS. Target the \`.preview-area\` classes to completely personalize the renderer!
 
 [^1]: This is the footnote definition at the bottom.
 `;
@@ -862,7 +904,8 @@ Here is a footnote reference [^1] and an emoji :rocket:!
                                 <button onClick={() => setIsExporting(!isExporting)} className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-bold shadow-md active:scale-95 transition-transform">Export</button>
                                 {isExporting && (
                                     <div className="absolute right-0 mt-3 w-40 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
-                                        <button onClick={() => doExport('md')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 dark:active:bg-slate-700 border-b dark:border-slate-700 text-slate-700 dark:text-slate-200">Markdown</button>
+                                        <button onClick={() => doExport('md')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 dark:active:bg-slate-700 border-b dark:border-slate-700 text-slate-700 dark:text-slate-200">Markdown (MD)</button>
+                                        <button onClick={() => doExport('txt')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 dark:active:bg-slate-700 border-b dark:border-slate-700 text-slate-700 dark:text-slate-200">Plain Text (TXT)</button>
                                         <button onClick={() => doExport('html')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 dark:active:bg-slate-700 border-b dark:border-slate-700 text-slate-700 dark:text-slate-200">HTML</button>
                                         <button onClick={() => doExport('pdf')} className="w-full text-left px-4 py-3 text-sm active:bg-slate-50 dark:active:bg-slate-700 text-blue-600 dark:text-blue-400 font-bold">PDF (Print)</button>
                                     </div>
