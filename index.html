@@ -174,6 +174,114 @@
             }
         };
 
+        // LaTeX Equation Editor symbol palette.
+        // '‸' marks where the cursor should land after inserting a template.
+        const LATEX_SYMBOL_GROUPS = [
+            {
+                name: 'Greek Letters',
+                symbols: [
+                    { display: 'α', insert: '\\alpha ', label: 'alpha' },
+                    { display: 'β', insert: '\\beta ', label: 'beta' },
+                    { display: 'γ', insert: '\\gamma ', label: 'gamma' },
+                    { display: 'δ', insert: '\\delta ', label: 'delta' },
+                    { display: 'ε', insert: '\\epsilon ', label: 'epsilon' },
+                    { display: 'θ', insert: '\\theta ', label: 'theta' },
+                    { display: 'λ', insert: '\\lambda ', label: 'lambda' },
+                    { display: 'μ', insert: '\\mu ', label: 'mu' },
+                    { display: 'π', insert: '\\pi ', label: 'pi' },
+                    { display: 'σ', insert: '\\sigma ', label: 'sigma' },
+                    { display: 'φ', insert: '\\phi ', label: 'phi' },
+                    { display: 'ω', insert: '\\omega ', label: 'omega' },
+                    { display: 'Γ', insert: '\\Gamma ', label: 'Gamma' },
+                    { display: 'Δ', insert: '\\Delta ', label: 'Delta' },
+                    { display: 'Θ', insert: '\\Theta ', label: 'Theta' },
+                    { display: 'Λ', insert: '\\Lambda ', label: 'Lambda' },
+                    { display: 'Π', insert: '\\Pi ', label: 'Pi' },
+                    { display: 'Σ', insert: '\\Sigma ', label: 'Sigma' },
+                    { display: 'Φ', insert: '\\Phi ', label: 'Phi' },
+                    { display: 'Ω', insert: '\\Omega ', label: 'Omega' },
+                ]
+            },
+            {
+                name: 'Operators',
+                symbols: [
+                    { display: '±', insert: '\\pm ', label: 'plus-minus' },
+                    { display: '×', insert: '\\times ', label: 'times' },
+                    { display: '÷', insert: '\\div ', label: 'divide' },
+                    { display: '·', insert: '\\cdot ', label: 'cdot' },
+                    { display: '≠', insert: '\\neq ', label: 'not equal' },
+                    { display: '≤', insert: '\\leq ', label: 'less or equal' },
+                    { display: '≥', insert: '\\geq ', label: 'greater or equal' },
+                    { display: '≈', insert: '\\approx ', label: 'approximately' },
+                    { display: '≡', insert: '\\equiv ', label: 'equivalent' },
+                    { display: '∞', insert: '\\infty ', label: 'infinity' },
+                    { display: '∂', insert: '\\partial ', label: 'partial derivative' },
+                    { display: '∇', insert: '\\nabla ', label: 'nabla' },
+                ]
+            },
+            {
+                name: 'Fractions & Roots',
+                symbols: [
+                    { display: 'a/b', insert: '\\frac{‸}{}', label: 'fraction' },
+                    { display: '√', insert: '\\sqrt{‸}', label: 'square root' },
+                    { display: 'ⁿ√', insert: '\\sqrt[‸]{}', label: 'nth root' },
+                    { display: 'x²', insert: '^{‸}', label: 'superscript' },
+                    { display: 'x₂', insert: '_{‸}', label: 'subscript' },
+                ]
+            },
+            {
+                name: 'Big Operators',
+                symbols: [
+                    { display: 'Σ', insert: '\\sum_{‸}^{}', label: 'summation' },
+                    { display: 'Π', insert: '\\prod_{‸}^{}', label: 'product' },
+                    { display: '∫', insert: '\\int_{‸}^{}', label: 'integral' },
+                    { display: '∮', insert: '\\oint_{‸}^{}', label: 'contour integral' },
+                    { display: 'lim', insert: '\\lim_{‸ \\to 0}', label: 'limit' },
+                ]
+            },
+            {
+                name: 'Arrows',
+                symbols: [
+                    { display: '→', insert: '\\to ', label: 'to' },
+                    { display: '←', insert: '\\leftarrow ', label: 'leftarrow' },
+                    { display: '↔', insert: '\\leftrightarrow ', label: 'leftrightarrow' },
+                    { display: '⇒', insert: '\\Rightarrow ', label: 'Rightarrow' },
+                    { display: '⇔', insert: '\\Leftrightarrow ', label: 'Leftrightarrow' },
+                    { display: '↦', insert: '\\mapsto ', label: 'mapsto' },
+                ]
+            },
+            {
+                name: 'Brackets',
+                symbols: [
+                    { display: '( )', insert: '\\left(‸\\right)', label: 'parentheses' },
+                    { display: '[ ]', insert: '\\left[‸\\right]', label: 'square brackets' },
+                    { display: '{ }', insert: '\\left\\{‸\\right\\}', label: 'braces' },
+                    { display: '| |', insert: '\\left|‸\\right|', label: 'absolute value' },
+                ]
+            },
+            {
+                name: 'Matrices',
+                symbols: [
+                    { display: '(⋯)', insert: '\\begin{pmatrix} ‸ \\end{pmatrix}', label: 'parenthesis matrix' },
+                    { display: '[⋯]', insert: '\\begin{bmatrix} ‸ \\end{bmatrix}', label: 'bracket matrix' },
+                    { display: '2×2', insert: '\\begin{matrix} ‸a & b \\\\ c & d \\end{matrix}', label: '2x2 matrix' },
+                ]
+            },
+            {
+                name: 'Functions & Accents',
+                symbols: [
+                    { display: 'sin', insert: '\\sin ', label: 'sine' },
+                    { display: 'cos', insert: '\\cos ', label: 'cosine' },
+                    { display: 'tan', insert: '\\tan ', label: 'tangent' },
+                    { display: 'log', insert: '\\log ', label: 'logarithm' },
+                    { display: 'ln', insert: '\\ln ', label: 'natural log' },
+                    { display: 'x̂', insert: '\\hat{‸}', label: 'hat' },
+                    { display: 'x̄', insert: '\\bar{‸}', label: 'bar' },
+                    { display: 'vec', insert: '\\vec{‸}', label: 'vector' },
+                ]
+            },
+        ];
+
         // Pre-processor for Footnotes and Definition Lists (shields code blocks)
         const processExtendedMarkdown = (md) => {
             if (!md) return '';
@@ -307,6 +415,9 @@
             const [emojiPicker, setEmojiPicker] = useState({ show: false, search: '', pos: 0, top: 0, left: 0, selectedIndex: 0 });
             const [openMenu, setOpenMenu] = useState(null);
             const [fileExportSubmenu, setFileExportSubmenu] = useState(false);
+            const [showLatexEditor, setShowLatexEditor] = useState(false);
+            const [latexInput, setLatexInput] = useState('');
+            const [latexDisplayMode, setLatexDisplayMode] = useState(true);
 
             // This effect runs once on mount to initialize files
             useEffect(() => {
@@ -523,6 +634,8 @@
             const textareaRef = useRef(null);
             const editorPreRef = useRef(null);
             const importInputRef = useRef(null);
+            const latexTextareaRef = useRef(null);
+            const latexPreviewRef = useRef(null);
 
             const highlightedMarkdown = React.useMemo(() => {
                 if (!markdown) return '';
@@ -721,6 +834,21 @@
                 if (showHelp) renderFeatures(helpRef.current);
             }, [showHelp, darkMode]);
 
+            // Live KaTeX preview for the LaTeX Equation Editor
+            useEffect(() => {
+                if (!showLatexEditor || !latexPreviewRef.current) return;
+                const el = latexPreviewRef.current;
+                if (!latexInput.trim()) {
+                    el.innerHTML = '<span class="text-slate-400 italic text-sm">Preview will appear here</span>';
+                    return;
+                }
+                try {
+                    katex.render(latexInput, el, { throwOnError: false, displayMode: latexDisplayMode });
+                } catch (e) {
+                    el.innerText = 'Invalid LaTeX expression';
+                }
+            }, [latexInput, latexDisplayMode, showLatexEditor]);
+
             const insertSnippet = (snippet) => {
                 const el = textareaRef.current;
                 if (!el) return;
@@ -743,6 +871,64 @@
                     el.focus();
                     el.setSelectionRange(start + snippet.length, start + snippet.length);
                 }, 10);
+            };
+
+            // Opens the LaTeX Equation Editor, pre-filling it with the current
+            // selection if it looks like an existing $...$ or $$...$$ expression.
+            const openLatexEditor = () => {
+                const el = textareaRef.current;
+                let initial = '';
+                let block = true;
+                if (el) {
+                    const selected = el.value.substring(el.selectionStart, el.selectionEnd);
+                    const blockMatch = selected.match(/^\$\$\n?([\s\S]*?)\n?\$\$$/);
+                    const inlineMatch = selected.match(/^\$([^\$\n]+)\$$/);
+                    if (blockMatch) {
+                        initial = blockMatch[1];
+                        block = true;
+                    } else if (inlineMatch) {
+                        initial = inlineMatch[1];
+                        block = false;
+                    } else if (selected) {
+                        initial = selected;
+                    }
+                }
+                setLatexInput(initial);
+                setLatexDisplayMode(block);
+                setShowLatexEditor(true);
+            };
+
+            // Inserts a symbol/template from the palette into the LaTeX source textarea
+            const insertLatexSymbol = (template) => {
+                const markerIndex = template.indexOf('‸');
+                const snippet = markerIndex === -1 ? template : template.replace('‸', '');
+                const el = latexTextareaRef.current;
+                if (!el) {
+                    setLatexInput(prev => prev + snippet);
+                    return;
+                }
+                const start = el.selectionStart;
+                const end = el.selectionEnd;
+                const text = el.value;
+                const newContent = text.substring(0, start) + snippet + text.substring(end);
+                setLatexInput(newContent);
+                const cursorPos = start + (markerIndex === -1 ? snippet.length : markerIndex);
+                setTimeout(() => {
+                    el.focus();
+                    el.setSelectionRange(cursorPos, cursorPos);
+                }, 0);
+            };
+
+            // Wraps the LaTeX source in $ or $$ delimiters and inserts it into the editor.
+            // Kept on a single line: marked's `breaks: true` turns internal newlines into
+            // <br> tags, which splits $$...$$ across text nodes and breaks KaTeX auto-render.
+            const insertLatexIntoEditor = () => {
+                const cleaned = latexInput.trim().replace(/\s*\n\s*/g, ' ');
+                if (!cleaned) return;
+                const wrapped = latexDisplayMode ? `$$${cleaned}$$` : `$${cleaned}$`;
+                insertSnippet(wrapped);
+                setShowLatexEditor(false);
+                setLatexInput('');
             };
 
             const addFile = () => {
@@ -902,6 +1088,7 @@ Add footnotes easily [^1]. Type \`:\` in the editor to trigger the **Emoji Autoc
 Powered by KaTeX. Use \`$\` for inline and \`$$\` for blocks.
 - **Fractions**: \`\\frac{a}{b}\` -> $\\frac{a}{b}$
 - **Sup/Sub**: \`n_1^2, e^{i\\phi}\` -> $n_1^2, e^{i\\phi}$
+- **Equation Editor**: Click the **∑ Eq** button in the editor toolbar to open a visual LaTeX editor with a symbol palette (Greek letters, operators, fractions, big operators, arrows, brackets, matrices, and more) plus a live preview. Select an existing \`$...$\` or \`$$...$$\` expression before opening it to edit that equation in place.
 
 ## 5. Diagrams & Code
 Code blocks feature automatic syntax highlighting and a "Copy to Clipboard" button on hover. 
@@ -1035,7 +1222,7 @@ author: You
                             <button onClick={() => setShowToc(!showToc)} className={`text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors ${showToc ? 'text-blue-600 dark:text-blue-400' : ''}`} title="Table of Contents">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                             </button>
-                            <button onClick={() => setShowHelp(true)} className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Help">
+                            <button onClick={() => setShowHelp(true)} className="hidden md:block text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Help">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                             </button>
                             <button onClick={() => setDarkMode(!darkMode)} className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Toggle Dark Mode">
@@ -1183,6 +1370,7 @@ author: You
                                         {tools.map((t, i) => (
                                             <button key={i} onClick={() => insertSnippet(t.cmd)} className="tool-btn active:bg-slate-100 dark:active:bg-slate-700">{t.label}</button>
                                         ))}
+                                        <button onClick={openLatexEditor} className="tool-btn active:bg-slate-100 dark:active:bg-slate-700" title="LaTeX Equation Editor">∑ Eq</button>
                                     </div>
                                     <div className="flex-shrink-0 flex items-center gap-4 pr-2 text-xs text-slate-400 dark:text-slate-500 font-mono">
                                         <span>{lineCount} Lines</span>
@@ -1254,10 +1442,16 @@ author: You
                     </div>
 
                     {/* Mobile Bottom Bar */}
-                    <div className={`md:hidden justify-center items-center py-2 bg-white dark:bg-slate-800 border-t dark:border-slate-700 transition-colors ${isFocusMode ? 'hidden' : 'flex'}`}>
+                    <div className={`md:hidden items-center py-2 px-4 bg-white dark:bg-slate-800 border-t dark:border-slate-700 transition-colors ${isFocusMode ? 'hidden' : 'flex'}`}>
+                        <div className="flex-1"></div>
                         <div className="bg-slate-100 dark:bg-slate-900 p-1 rounded-lg flex items-center transition-colors">
                             <button onClick={() => setLayout('editor')} className={`px-6 py-1 rounded-md text-xs font-bold transition-all ${layout === 'editor' ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>Edit</button>
                             <button onClick={() => setLayout('preview')} className={`px-6 py-1 rounded-md text-xs font-bold transition-all ${layout === 'preview' ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>Preview</button>
+                        </div>
+                        <div className="flex-1 flex justify-end">
+                            <button onClick={() => setShowHelp(true)} className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Help">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </button>
                         </div>
                     </div>
 
@@ -1303,6 +1497,71 @@ author: You
                                         onChange={(e) => setCustomCSS(e.target.value)}
                                         spellCheck="false"
                                     />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* LaTeX Equation Editor Modal */}
+                    {showLatexEditor && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                            <div className="absolute inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm" onClick={() => setShowLatexEditor(false)}></div>
+                            <div className="relative w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl flex flex-col p-6 max-h-[85vh] pane-transition">
+                                <div className="flex justify-between items-center border-b dark:border-slate-700 pb-4 mb-4 flex-shrink-0">
+                                    <h2 className="text-xl font-bold dark:text-white">LaTeX Equation Editor</h2>
+                                    <button onClick={() => setShowLatexEditor(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    </button>
+                                </div>
+                                <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col gap-4 pr-1">
+                                    <div className="flex flex-col gap-3">
+                                        {LATEX_SYMBOL_GROUPS.map(group => (
+                                            <div key={group.name}>
+                                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">{group.name}</div>
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {group.symbols.map((sym, i) => (
+                                                        <button
+                                                            key={i}
+                                                            onClick={() => insertLatexSymbol(sym.insert)}
+                                                            title={sym.label}
+                                                            className="tool-btn !px-2.5 !py-1.5 text-sm font-mono min-w-[2.5rem]"
+                                                        >
+                                                            {sym.display}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex flex-col gap-2 flex-shrink-0">
+                                        <div className="flex justify-between items-center">
+                                            <label className="font-bold text-sm text-slate-700 dark:text-slate-300">LaTeX Source</label>
+                                            <div className="bg-slate-100 dark:bg-slate-900 p-1 rounded-lg flex items-center transition-colors">
+                                                <button onClick={() => setLatexDisplayMode(false)} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${!latexDisplayMode ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>Inline</button>
+                                                <button onClick={() => setLatexDisplayMode(true)} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${latexDisplayMode ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>Block</button>
+                                            </div>
+                                        </div>
+                                        <textarea
+                                            ref={latexTextareaRef}
+                                            value={latexInput}
+                                            onChange={(e) => setLatexInput(e.target.value)}
+                                            className="w-full h-24 p-3 font-mono text-sm bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl outline-none resize-none text-slate-800 dark:text-slate-200 shadow-inner"
+                                            placeholder="\frac{a}{b} + \sqrt{x}"
+                                            spellCheck="false"
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2 flex-shrink-0">
+                                        <label className="font-bold text-sm text-slate-700 dark:text-slate-300">Preview</label>
+                                        <div className="p-4 bg-slate-50 dark:bg-slate-900 border dark:border-slate-700 rounded-xl min-h-[4.5rem] flex items-center justify-center overflow-x-auto">
+                                            <div ref={latexPreviewRef} className="text-slate-800 dark:text-slate-200"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex justify-end gap-2 pt-4 border-t dark:border-slate-700 mt-4 flex-shrink-0">
+                                    <button onClick={() => setShowLatexEditor(false)} className="tool-btn">Cancel</button>
+                                    <button onClick={insertLatexIntoEditor} disabled={!latexInput.trim()} className={`tool-btn !border-blue-600 ${latexInput.trim() ? '!bg-blue-600 !text-white' : 'opacity-50 cursor-not-allowed'}`}>Insert</button>
                                 </div>
                             </div>
                         </div>
